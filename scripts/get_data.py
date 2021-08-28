@@ -17,7 +17,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def get_file_names(url: str) -> iter:
     response = urlopen(url)
-    soup_wrap = BeautifulSoup(response.read())
+    soup_wrap = BeautifulSoup(response.read(), features="lxml")
     return (file.contents[0] for file in soup_wrap.find_all('a') if '.' in file.contents[0])
 
 
