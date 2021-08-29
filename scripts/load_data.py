@@ -1,8 +1,11 @@
 import email
 import email.policy
 import os
+import numpy as np
 from concurrent import futures
 
+import re
+from html import unescape
 
 try:
     ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,3 +44,45 @@ def load_data(data_folder_path: list) -> dict:
         emails[folder_name] = mails
 
     return emails
+
+
+def html_to_plain_text(html):
+    text = re.sub('<head.*?>.*?</head>', '', html, flags=re.M | re.S | re.I)
+    text = re.sub('<a\s.*?>', ' HYPERLINK ', text, flags=re.M | re.S | re.I)
+    text = re.sub('<.*?>', '', text, flags=re.M | re.S)
+    text = re.sub(r'(\s*\n)+', '\n', text, flags=re.M | re.S)
+    return unescape(text)
+
+
+def email_to_text(email):
+    html = None
+    for part in email.walk():
+        ctype = part.get_content_type()
+        if not ctype in ("text/plain", "text/html"):
+            continue
+        try:
+            content = part.get_content()
+        except:  # in case of encoding issues
+            content = str(part.get_payload())
+        if ctype == "text/plain":
+            return content
+        else:
+            html = content
+    if html:
+        return html_to_plain_text(html)
+
+
+def create_dataset(emails: dict) -> np.array:
+    y = []
+    mails = []
+
+    for key, values in emails.items():
+        v = [1]
+        if 'ham' in key:
+            v = [0]
+
+        y += v * len(values)
+
+        mails += values
+
+    return np.array(mails, object), np.array(y)
