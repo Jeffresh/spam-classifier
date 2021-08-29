@@ -17,7 +17,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def get_file_names(url: str) -> iter:
     response = urlopen(url)
-    soup_wrap = BeautifulSoup(response.read(), features="lxml")
+    soup_wrap = BeautifulSoup(response.read())
     return (file.contents[0] for file in soup_wrap.find_all('a') if '.' in file.contents[0])
 
 
@@ -77,8 +77,7 @@ def download_many(args):
     return len(list(res))
 
 
-if __name__ == '__main__':
-
+def collect_update_data():
     file_names = list(get_file_names(url))
     other_files, files = get_order_files_per_type(TYPES, file_names)
     files_names_updated = get_updated_file_names(TYPES, files)
@@ -92,3 +91,20 @@ if __name__ == '__main__':
     args = [(os.path.join(url, value), data_path)
             for value in files_names_updated.values()]
     download_many(args)
+
+
+# if __name__ == '__main__':
+
+#     file_names = list(get_file_names(url))
+#     other_files, files = get_order_files_per_type(TYPES, file_names)
+#     files_names_updated = get_updated_file_names(TYPES, files)
+
+#     data_path = os.path.abspath(os.path.join(ROOT_DIR, 'data'))
+#     print(data_path)
+
+#     if not os.path.exists(data_path):
+#         os.makedirs(data_path)
+
+#     args = [(os.path.join(url, value), data_path)
+#             for value in files_names_updated.values()]
+#     download_many(args)

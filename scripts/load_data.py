@@ -1,3 +1,4 @@
+from collections import Counter
 import email
 import email.policy
 import os
@@ -44,6 +45,26 @@ def load_data(data_folder_path: list) -> dict:
         emails[folder_name] = mails
 
     return emails
+
+
+def get_structures(email):
+    if isinstance(email, str):
+        return email
+    payload = email.get_payload()
+    if isinstance(payload, list):
+        return "multiapart({})".format(', '.join([get_structures(sub_email)
+                                                  for sub_email in payload]))
+    else:
+        return email.get_content_type()
+
+
+def structures_counter(emails):
+    structures = Counter()
+    for email in emails:
+        structure = get_structures(email)
+        structures[structure] += 1
+
+    return structures
 
 
 def html_to_plain_text(html):
