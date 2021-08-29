@@ -130,3 +130,7 @@ dmypy.json
 
 # Ignore data
 /data/*
+
+# idea pycharm 
+
+.idea
